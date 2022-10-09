@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.1.2 FATAL_ERROR)
+project(rxjh_query C)
+add_definitions(-Wall)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-pie")
+include_directories(${CMAKE_SOURCE_DIR}/include)
+link_directories(./lib)
+
+add_executable(client client.c)
+target_link_libraries(client libevent.a)
