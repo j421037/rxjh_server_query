@@ -101,6 +101,7 @@ void client_read_cb(struct bufferevent* bev, void* ctx) {
 
 	if ( bev == NULL ) {
 		LOG_PRINTF("ERROR", "Invalid buffer...");
+		goto EXIT;
 	}
 
 	sz = evbuffer_get_length(bev->input) + 1;
@@ -156,18 +157,19 @@ void client_read_cb(struct bufferevent* bev, void* ctx) {
 		bufferevent_free(bev);
 //		event_base_loopbreak(_g_base);
 
-
 		for ( idx = 0; idx < sz - 1; ++idx ) {
-			if ( buff[idx] == 0x53 ) {
+			if ( buff[idx] == 0x53 && buff[idx - 1] == 0x00 ) {
 				r = 1;
 				i = idx;
 			}
-
+		
+		// 	printf("%02x", buff[idx]);
 			if ( r == 1 && buff[idx] == 0x00 ) {
 				memset(line, 0x00, sizeof(line));
 				memset(name, 0x00, sizeof(name));
 
 				memcpy(line, buff + i, idx - i);
+			//	printf("line strlen = %ld, i = %d, idx = %d\n", strlen(line), i, idx);
 				memcpy(name, line, idx - i - 1);
 				val = line[idx - i - 1];
 
@@ -180,6 +182,7 @@ void client_read_cb(struct bufferevent* bev, void* ctx) {
 					snprintf(line, sizeof(line), "%s %u%%", name, val);
 				}
 
+			//	printf("%\n");
 				printf("%s\n", line);
 				memset(list[lst_idx], 0x00, lx);
 				memcpy(list[lst_idx], line, lx);
